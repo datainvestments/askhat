@@ -14,3 +14,5 @@
 
 5. В `docs/TZ.md` не зафиксирован обязательный backend persistence-слой для Wizard/calls/integrations именно в P0 skeleton.
    - Решение для P0 skeleton: использован in-memory store для smoke/контрактного минимума API; переход на Postgres persistence остаётся следующим шагом.
+6. В репозитории не было зафиксированного lock-файла и локальной настройки npm registry для воспроизводимой установки в чистой среде.
+   - Решение для P0 hardening: добавлены `package-lock.json` и `.npmrc` с `registry=https://registry.npmjs.org/`; приватные npm-пакеты не обнаружены.

@@ -2,12 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { tenantIsolationGuard } from '../middleware/tenant.js';
-import { inMemoryStore } from '../store.js';
+import { type CallEventRecord, type CallState, inMemoryStore } from '../store.js';
 
-const transitions = {
+const transitions: Record<'inbound' | 'outbound', CallState[]> = {
   inbound: ['new', 'ringing', 'in_progress', 'handoff', 'ended'],
   outbound: ['new', 'ringing', 'in_progress', 'ended']
-} as const;
+};
 
 export const callsRouter = Router();
 
@@ -53,23 +53,23 @@ callsRouter.post('/:id/state', (req, res) => {
     return;
   }
 
-  const nextState = String(req.body?.state ?? '');
+  const nextState = String(req.body?.state ?? '') as CallState;
   const flow = transitions[call.direction];
   const currentIndex = flow.indexOf(call.state);
-  const nextIndex = flow.indexOf(nextState as never);
+  const nextIndex = flow.indexOf(nextState);
   if (nextIndex === -1 || nextIndex < currentIndex) {
     res.status(400).json({ ok: false });
     return;
   }
 
-  call.state = nextState as never;
+  call.state = nextState;
   call.updated_at = new Date().toISOString();
   if (nextState === 'ended') {
     call.outcome = 'completed';
   }
 
-  const type = nextState === 'ended' ? 'call.ended' : 'call.state_changed';
-  const event = {
+  const type: CallEventRecord['type'] = nextState === 'ended' ? 'call.ended' : 'call.state_changed';
+  const event: CallEventRecord = {
     id: randomUUID(),
     call_id: call.id,
     project_id: call.project_id,
