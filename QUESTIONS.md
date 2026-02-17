@@ -8,3 +8,9 @@
 
 3. В `docs/TZ.md` не определён формат передачи tenant scope в HTTP заголовках для API guard.
    - Решение для P0 skeleton: использованы `x-org-id` и `x-project-id` как явный runtime scoping-контракт до финализации.
+
+4. В `docs/TZ.md` не задан точный транспорт realtime (WS vs SSE) для P0 skeleton-реализации.
+   - Решение для P0 skeleton: использован SSE (`GET /api/realtime/stream`) с событиями в формате `type/ts/project_id/entity/payload`.
+
+5. В `docs/TZ.md` не зафиксирован обязательный backend persistence-слой для Wizard/calls/integrations именно в P0 skeleton.
+   - Решение для P0 skeleton: использован in-memory store для smoke/контрактного минимума API; переход на Postgres persistence остаётся следующим шагом.
