@@ -1,0 +1,10 @@
+{
+  "name": "askhat",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "test": "npm run test -w backend",
+    "dev": "echo \"Run backend and frontend separately: npm run dev -w backend / npm run dev -w frontend\""
+  }
+}

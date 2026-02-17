@@ -1,0 +1,25 @@
+import { Router } from 'express';
+import { authMiddleware } from '../middleware/auth.js';
+import { tenantIsolationGuard } from '../middleware/tenant.js';
+import { realtimeEventSchemaSample, realtimeEventTypes } from '../realtime/contracts.js';
+
+export const realtimeRouter = Router();
+
+realtimeRouter.use(authMiddleware);
+realtimeRouter.use(tenantIsolationGuard);
+
+realtimeRouter.get('/token', (_req, res) => {
+  res.json({ token: 'realtime-dev-token' });
+});
+
+realtimeRouter.get('/stream', (_req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.write(`event: ${realtimeEventSchemaSample.type}\n`);
+  res.write(`data: ${JSON.stringify(realtimeEventSchemaSample)}\n\n`);
+  res.end();
+});
+
+realtimeRouter.get('/contracts', (_req, res) => {
+  res.json({ event_types: realtimeEventTypes, schema_sample: realtimeEventSchemaSample });
+});
