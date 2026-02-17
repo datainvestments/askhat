@@ -50,6 +50,28 @@ Backend tests:
 npm run test -w backend
 ```
 
+## Smoke check
+1) Start infra and run migrations:
+```bash
+docker compose up -d postgres
+npm run migrate -w backend
+```
+
+2) Start backend and frontend in separate terminals:
+```bash
+npm run dev -w backend
+npm run dev -w frontend
+```
+
+3) Verify health and app pages:
+```bash
+curl -sS http://localhost:3001/health
+```
+
+Open URLs:
+- Backend health: `http://localhost:3001/health`
+- Frontend app: `http://localhost:5173`
+
 ## 9. Skeleton coverage
 - Backend:
   - `GET /health`
