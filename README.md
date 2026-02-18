@@ -72,6 +72,16 @@ Open URLs:
 - Backend health: `http://localhost:3001/health`
 - Frontend app: `http://localhost:5173`
 
+## CI + Smoke check
+- Workflow: `.github/workflows/ci.yml`
+- Triggers: `push` в `main` и `pull_request`
+- CI выполняет:
+  1. `npm ci`
+  2. `npm run lint`
+  3. `npm run test -w backend`
+  4. `npm run build -w frontend`
+  5. `./scripts/smoke.sh` (поднимает Postgres через `docker compose`, применяет миграции, поднимает backend и проверяет `GET /health`)
+
 ## 9. Skeleton coverage
 - Backend:
   - `GET /health`
