@@ -13,4 +13,6 @@
 | 7 | RBAC, audit log и изоляция данных подтверждены тестами. | IN PROGRESS | Added backend API tests for no token, RBAC forbidden role, and foreign tenant/org mismatch with TZ-format error envelope; audit log remains pending. |
 
 ## Infra notes
-- CI gate / reproducible install pipeline: local reproducibility gate is now codified as `npm ci`, `npm run lint`, `npm run test -w backend`, `npm run build -w frontend`, `./scripts/smoke.sh`; all commands pass in this environment. GitHub-hosted CI status for PR #6/#7/main still must be confirmed in an environment with `gh` + github.com access.
+- CI gate / reproducible install pipeline: local reproducibility gate is codified as `npm ci`, `npm run lint`, `npm run test -w backend`, `npm run build -w frontend`, `./scripts/smoke.sh`; локальный smoke воспроизводим в текущем состоянии репозитория.
+- Статус GitHub CI на `main` не подтверждён в этой среде: команда `gh run list --branch main --workflow CI --limit 10` не выполняется (`gh: command not found`), а сетевые запросы к GitHub API блокируются proxy HTTP 403.
+- Acceptance пункты #1 и #7 остаются `IN PROGRESS` до независимого подтверждения в среде с доступом к GitHub Actions (и полного закрытия продуктовых критериев по TZ 13.3).
