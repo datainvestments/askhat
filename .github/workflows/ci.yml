@@ -8,6 +8,11 @@ on:
 jobs:
   build-test-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PORT: 3001
+      JWT_SECRET: ci-secret
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/askhat
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +26,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Env sanity + versions
+        run: |
+          node --version
+          npm --version
+          echo "PORT=${PORT}"
+          echo "DATABASE_URL=${DATABASE_URL}"
+
       - name: Lint
         run: npm run lint
 
@@ -32,3 +44,13 @@ jobs:
 
       - name: Smoke check
         run: ./scripts/smoke.sh
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo "=== docker compose ps ==="
+          docker compose ps || true
+          echo "=== postgres logs (tail) ==="
+          docker compose logs --tail=200 postgres || true
+          echo "=== backend logs (tail) ==="
+          tail -n 200 /tmp/askhat-backend.log || true

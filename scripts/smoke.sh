@@ -13,23 +13,43 @@ cleanup() {
 }
 trap cleanup EXIT
 
-docker compose up -d postgres
+COMPOSE_STARTED=0
+
+if command -v docker >/dev/null 2>&1; then
+  docker compose up -d postgres
+  COMPOSE_STARTED=1
+fi
 
 echo "Waiting for postgres healthcheck..."
+if [[ "$COMPOSE_STARTED" -eq 1 ]]; then
+  for _ in {1..30}; do
+    status="$(docker inspect --format='{{json .State.Health.Status}}' askhat-postgres 2>/dev/null | tr -d '"' || true)"
+    if [[ "$status" == "healthy" ]]; then
+      break
+    fi
+    sleep 2
+  done
+
+  if [[ "$(docker inspect --format='{{json .State.Health.Status}}' askhat-postgres | tr -d '"')" != "healthy" ]]; then
+    echo "Postgres is not healthy" >&2
+    exit 1
+  fi
+else
+  echo "docker not found; expecting external postgres via DATABASE_URL"
+fi
+
 for _ in {1..30}; do
-  status="$(docker inspect --format='{{json .State.Health.Status}}' askhat-postgres 2>/dev/null | tr -d '"' || true)"
-  if [[ "$status" == "healthy" ]]; then
+  if npm run migrate -w backend >/tmp/askhat-migrate.log 2>&1; then
     break
   fi
   sleep 2
 done
 
-if [[ "$(docker inspect --format='{{json .State.Health.Status}}' askhat-postgres | tr -d '"')" != "healthy" ]]; then
-  echo "Postgres is not healthy" >&2
+if ! npm run migrate -w backend >/tmp/askhat-migrate.log 2>&1; then
+  echo "Migrations failed" >&2
+  cat /tmp/askhat-migrate.log >&2 || true
   exit 1
 fi
-
-npm run migrate -w backend
 
 npm run dev -w backend > /tmp/askhat-backend.log 2>&1 &
 BACKEND_PID=$!
