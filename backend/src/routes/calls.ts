@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { tenantIsolationGuard } from '../middleware/tenant.js';
-import { inMemoryStore } from '../store.js';
+import { type CallState, inMemoryStore } from '../store.js';
 
 const transitions = {
   inbound: ['new', 'ringing', 'in_progress', 'handoff', 'ended'],
@@ -54,7 +54,7 @@ callsRouter.post('/:id/state', (req, res) => {
   }
 
   const nextState = String(req.body?.state ?? '');
-  const flow = transitions[call.direction];
+  const flow: readonly CallState[] = transitions[call.direction];
   const currentIndex = flow.indexOf(call.state);
   const nextIndex = flow.indexOf(nextState as never);
   if (nextIndex === -1 || nextIndex < currentIndex) {
@@ -68,7 +68,7 @@ callsRouter.post('/:id/state', (req, res) => {
     call.outcome = 'completed';
   }
 
-  const type = nextState === 'ended' ? 'call.ended' : 'call.state_changed';
+  const type: 'call.ended' | 'call.state_changed' = nextState === 'ended' ? 'call.ended' : 'call.state_changed';
   const event = {
     id: randomUUID(),
     call_id: call.id,
