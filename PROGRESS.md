@@ -2,7 +2,7 @@
 
 | Step | Status | Notes |
 |---|---|---|
-| 1 | DONE (local) | Reproducible install/run baseline tightened: added root `package-lock.json`, switched README install to `npm ci`, added executable `scripts/smoke.sh`, and verified `npm ci`, `npm run lint`, `npm run test -w backend`, `npm run build -w frontend`, `./scripts/smoke.sh` locally. GitHub PR/CI operations for #6/#7 could not be executed in this environment because `gh` is unavailable and outbound access to github.com is blocked (HTTP 403 via proxy). |
+| 1 | DONE (code) / CI UNVERIFIED | Merge commit `b551c51` (`Merge pull request #8 from datainvestments/codex/complete-step-1-for-voice-ai-platform`) is present in local history, so Step 1 code changes are merged into current branch state. CI green on `main` is not подтверждён в этой среде: `gh` CLI недоступен, а исходящие запросы к GitHub/GitHub API и apt-репозиториям возвращают HTTP 403 через прокси. |
 | 4 | DONE | README smoke-check section added with zero-to-run commands/URLs; attempted local smoke bootstrap, blocked by npm registry 403 in environment. |
 | 5 | DONE | Added API tests for: no bearer token (401 TZ-format), RBAC deny (403), tenant mismatch deny (403). |
 | 6 | DONE | Added calls API (`/api/calls/test-call`, state transitions, inbox events) and realtime stream now emits latest call event in TZ event shape. |
@@ -10,7 +10,7 @@
 | 8 | DONE | Added integration endpoints for Bitrix24/amoCRM/Google Calendar (connect/check/logs), added integration smoke test, refreshed acceptance checklist and questions. |
 
 ## Decision log
-- GitHub PR/CI verification via gh CLI is blocked in current environment (no `gh` binary + github.com 403 through proxy), so merge/check steps for PR #6/#7 require execution in a network-enabled runner.
+- GitHub PR/CI verification via gh CLI is blocked in current environment (no `gh` binary + github.com 403 through proxy), so merge/check steps for PR #8 and `main` CI require execution in a network-enabled runner with `gh` installed.
 - Following strict P0-only implementation boundaries from TZ/BACKLOG.
 - Environment package install currently blocked by npm 403; continue with code-level changes and command-level verification where possible.
 - Kept TZ error envelope (`error.code/human_title/human_how_to_fix/details.trace_id`) for security denials.
