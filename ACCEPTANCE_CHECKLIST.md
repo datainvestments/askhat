@@ -11,3 +11,6 @@
 | 5 | По каждому звонку отображаются итог, транскрипт, действия, ошибки и стоимость. | NOT STARTED | Skeleton verification: определены API/error/realtime контракты foundation-уровня; полноценные calls/inbox данные и UI карточка звонка не реализованы. |
 | 6 | Живой монитор отображает текущие звонки/кампании/сообщения/расходы в реальном времени. | IN PROGRESS | Implemented call event generation and SSE stream now emits latest project call event (`call.started`/`call.state_changed`/`call.ended`) in TZ event schema. |
 | 7 | RBAC, audit log и изоляция данных подтверждены тестами. | IN PROGRESS | Added backend API tests for no token, RBAC forbidden role, and foreign tenant/org mismatch with TZ-format error envelope; audit log remains pending. |
+
+## Infra notes
+- CI gate / reproducible install pipeline: local reproducibility gate is now codified as `npm ci`, `npm run lint`, `npm run test -w backend`, `npm run build -w frontend`, `./scripts/smoke.sh`; all commands pass in this environment. GitHub-hosted CI status for PR #6/#7/main still must be confirmed in an environment with `gh` + github.com access.

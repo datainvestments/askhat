@@ -14,3 +14,6 @@
 
 5. В `docs/TZ.md` не зафиксирован обязательный backend persistence-слой для Wizard/calls/integrations именно в P0 skeleton.
    - Решение для P0 skeleton: использован in-memory store для smoke/контрактного минимума API; переход на Postgres persistence остаётся следующим шагом.
+6. Для шага с PR #6/#7 требуется GitHub CLI (`gh`) и доступ к github.com, но в текущей среде `gh` отсутствует, а исходящие запросы к github.com блокируются прокси (HTTP 403).
+   - Решение в текущем прогоне: выполнены только локальные infra-проверки воспроизводимости; merge/check действий по PR нужно повторить в среде с доступом к GitHub.
+
