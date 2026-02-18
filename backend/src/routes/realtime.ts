@@ -13,21 +13,26 @@ realtimeRouter.get('/token', (_req, res) => {
   res.json({ token: 'realtime-dev-token' });
 });
 
-realtimeRouter.get('/stream', (_req, res) => {
+realtimeRouter.get('/stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
-  const recentEvent = [...inMemoryStore.callEvents].reverse()[0];
-  const payload = recentEvent
-    ? {
-        type: recentEvent.type,
-        ts: recentEvent.ts,
-        project_id: recentEvent.project_id,
-        entity: { type: 'call', id: recentEvent.call_id },
-        payload: recentEvent.payload
-      }
-    : realtimeEventSchemaSample;
-  res.write(`event: ${payload.type}\n`);
-  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+
+  const recent = [...inMemoryStore.callEvents].filter((event) => event.project_id === req.tenant!.projectId).slice(-10);
+  const items =
+    recent.length > 0
+      ? recent.map((evt) => ({
+          type: evt.type,
+          ts: evt.ts,
+          project_id: evt.project_id,
+          entity: { type: evt.type.startsWith('call.') ? 'call' : 'event', id: evt.call_id },
+          payload: evt.payload
+        }))
+      : [realtimeEventSchemaSample];
+
+  for (const payload of items) {
+    res.write(`event: ${payload.type}\n`);
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  }
   res.end();
 });
 

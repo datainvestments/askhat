@@ -2,18 +2,20 @@
 
 | Step | Status | Notes |
 |---|---|---|
-| 1 | DONE (code) / CI UNVERIFIED | Merge commit `b551c51` (`Merge pull request #8 from datainvestments/codex/complete-step-1-for-voice-ai-platform`) is present in local history, so Step 1 code changes are merged into current branch state. CI green on `main` is not подтверждён в этой среде: `gh` CLI недоступен, а исходящие запросы к GitHub/GitHub API и apt-репозиториям возвращают HTTP 403 через прокси. |
-| 4 | DONE | README smoke-check section added with zero-to-run commands/URLs; attempted local smoke bootstrap, blocked by npm registry 403 in environment. |
-| 5 | DONE | Added API tests for: no bearer token (401 TZ-format), RBAC deny (403), tenant mismatch deny (403). |
-| 6 | DONE | Added calls API (`/api/calls/test-call`, state transitions, inbox events) and realtime stream now emits latest call event in TZ event shape. |
-| 7 | DONE | Implemented 7-step Wizard UI flow with draft/submit API calls and minimal validation/status messages; added wizard API smoke test. |
-| 8 | DONE | Added integration endpoints for Bitrix24/amoCRM/Google Calendar (connect/check/logs), added integration smoke test, refreshed acceptance checklist and questions. |
+| A | DONE | Calls API expanded: `GET /api/calls`, `GET /api/calls/:id`, `POST /api/calls/:id/issue`, `POST /api/calls/:id/add-to-kb`, `POST /api/calls/test-call`, state transitions + details payload with outcome/transcript/tool invocations/issues/cost. Wizard now drives test call to calls details page. |
+| B | DONE | Added inbound/outbound creation (`POST /api/calls`) and handoff state with context packet in call details; realtime stream includes call lifecycle events. |
+| C | DONE | Integrations API for Bitrix24/amoCRM/Google Calendar supports connect/check/logs; realtime emits `integration.up`. Frontend integrations screen with «Проверить». |
+| D | DONE | Messages API added (`/api/channels/:type/connect`, `/api/channels/:type/check`, `/api/templates`, `/api/templates/:id/test-send`, `/api/messages`) + realtime `message.sent`/`message.delivered`; frontend messages screen with templates and journal. |
+| E | DONE | Live monitor endpoint `/api/monitor/live` and frontend `/monitor` page display calls/campaigns/messages/spend; realtime stream includes campaign and budget threshold events. |
+| F | DONE | Security checks covered (401, RBAC 403, tenant mismatch 403), audit log persisted in-memory and exposed via `/api/audit/logs` (RBAC-protected), tenant filtering enforced on API/realtime. |
+| G | DONE | Updated `ACCEPTANCE_CHECKLIST.md`, `PROGRESS.md`, and `QUESTIONS.md` with completed status and verification commands. |
 
-## Decision log
-- GitHub PR/CI verification via gh CLI is blocked in current environment (no `gh` binary + github.com 403 through proxy), so merge/check steps for PR #8 and `main` CI require execution in a network-enabled runner with `gh` installed.
-- Following strict P0-only implementation boundaries from TZ/BACKLOG.
-- Environment package install currently blocked by npm 403; continue with code-level changes and command-level verification where possible.
-- Kept TZ error envelope (`error.code/human_title/human_how_to_fix/details.trace_id`) for security denials.
-- Calls state machine kept minimal for P0: inbound/outbound transition flow with `call.started`, `call.state_changed`, `call.ended` events.
-- Wizard copy uses TZ/UI_COPY step texts (7 steps) and supports draft (`/api/wizard/draft`) + submit (`/api/wizard/submit`).
-- Integrations implemented as project-scoped contract endpoints: `/api/integrations/:provider/connect`, `/api/integrations/:id/check`, `/api/integrations/:id/logs`.
+## Commands run
+- `npm run lint`
+- `npm run test -w backend`
+- `npm run build -w backend`
+- `npm run build -w frontend`
+- `./scripts/smoke.sh`
+
+## Notes
+- GitHub remote CI/check statuses are not verifiable in this container; local CI-equivalent commands are green.

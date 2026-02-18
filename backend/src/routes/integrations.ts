@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { tenantIsolationGuard } from '../middleware/tenant.js';
 import { inMemoryStore } from '../store.js';
+import { appendAudit, pushRealtimeEvent } from './_helpers.js';
 
 const providers = ['bitrix24', 'amocrm', 'google-calendar'] as const;
 
@@ -27,6 +28,8 @@ integrationsRouter.post('/:provider/connect', (req, res) => {
     logs: [{ ts: new Date().toISOString(), level: 'info' as const, message: 'connected' }]
   };
   inMemoryStore.integrations.set(id, state);
+  pushRealtimeEvent({ call_id: id, project_id: req.tenant!.projectId, type: 'integration.up', payload: { provider } });
+  appendAudit(req, `integration.connect.${provider}`);
   res.status(201).json(state);
 });
 
@@ -37,6 +40,7 @@ integrationsRouter.post('/:id/check', (req, res) => {
     return;
   }
   integration.logs.push({ ts: new Date().toISOString(), level: 'info', message: 'check_ok' });
+  appendAudit(req, `integration.check.${integration.provider}`);
   res.json({ ok: true, provider: integration.provider });
 });
 
@@ -47,4 +51,9 @@ integrationsRouter.get('/:id/logs', (req, res) => {
     return;
   }
   res.json({ items: integration.logs });
+});
+
+integrationsRouter.get('/', (req, res) => {
+  const items = [...inMemoryStore.integrations.values()].filter((i) => i.project_id === req.tenant!.projectId);
+  res.json({ items });
 });
